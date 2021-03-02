@@ -1,21 +1,29 @@
 const express = require('express');
 
+const secure = require('./secure');
 const response = require('../../../network/response');
 const Controller = require('./index');
 
 const router = express.Router();
 
-router.get('/', function (req, res) {
+// Routes
+router.get('/', list);
+router.get('/:id', get);
+router.post('/', upsert);
+router.put('/', secure('update'), upsert);
+
+// Internal functions
+function list(req, res) {
   Controller.list()
-    .then((list) => {
-      response.success(req, res, list, 200);
+    .then((lista) => {
+      response.success(req, res, lista, 200);
     })
     .catch((err) => {
       response.error(req, res, err.message, 500);
     });
-});
+}
 
-router.get('/:id', function (req, res) {
+function get(req, res) {
   Controller.get(req.params.id)
     .then((user) => {
       response.success(req, res, user, 200);
@@ -23,16 +31,16 @@ router.get('/:id', function (req, res) {
     .catch((err) => {
       response.error(req, res, err.message, 500);
     });
-});
+}
 
-router.post('/', function (req, res) {
+function upsert(req, res) {
   Controller.upsert(req.body)
-    .then((userCreated) => {
-      response.success(req, res, userCreated, 201);
+    .then((user) => {
+      response.success(req, res, user, 201);
     })
     .catch((err) => {
       response.error(req, res, err.message, 500);
     });
-});
+}
 
 module.exports = router;
